@@ -6,7 +6,6 @@
     <title>Employee Attendance Tracker</title>
 
     <script type="module" src="http://localhost:5173/@vite/client"></script>
-    <script type="module" src="http://localhost:5173/resources/js/vite-preamble.js"></script>
     <script type="module" src="http://localhost:5173/resources/js/app.jsx"></script>
 </head>
 <body>
