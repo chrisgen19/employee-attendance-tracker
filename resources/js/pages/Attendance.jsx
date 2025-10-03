@@ -26,9 +26,12 @@ const Attendance = () => {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return {
             day: days[date.getDay()],
-            date: date.getDate().toString().padStart(2, '0')
+            date: date.getDate().toString().padStart(2, '0'),
+            month: months[date.getMonth()],
+            fullDate: `${date.getDate().toString().padStart(2, '0')} ${months[date.getMonth()]}`
         };
     };
 
@@ -211,7 +214,7 @@ const Attendance = () => {
                                                         <div className="text-sm text-gray-500 mb-1">CLOCK IN:</div>
                                                         <div className="flex items-baseline space-x-2">
                                                             <span className="text-lg font-semibold text-gray-900">
-                                                                {attendance.date} at {formatTime(attendance.time_in)}
+                                                                {dateInfo.fullDate} at {formatTime(attendance.time_in)}
                                                             </span>
                                                             {getTimeStatus(attendance.time_in, user?.shift_start)}
                                                         </div>
@@ -222,7 +225,7 @@ const Attendance = () => {
                                                         <div className="text-sm text-gray-500 mb-1">CLOCK OUT:</div>
                                                         <div className="flex items-baseline space-x-2">
                                                             <span className="text-lg font-semibold text-gray-900">
-                                                                {attendance.time_out ? `${attendance.date} at ${formatTime(attendance.time_out)}` : '--'}
+                                                                {attendance.time_out ? `${dateInfo.fullDate} at ${formatTime(attendance.time_out)}` : '--'}
                                                             </span>
                                                             {getClockOutStatus(attendance.time_out, user?.shift_end)}
                                                         </div>

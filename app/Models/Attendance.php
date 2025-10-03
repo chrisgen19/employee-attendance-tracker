@@ -56,7 +56,11 @@ class Attendance extends Model
         $shiftEnd = Carbon::parse($this->user->shift_end);
 
         // Late if clocked in more than 15 minutes after shift start
-        if ($timeIn->diffInMinutes($shiftStart, false) < -15) {
+        $minutesDifference = $timeIn->diffInMinutes($shiftStart, false);
+
+        // If negative, means timeIn is after shiftStart (late)
+        // If positive, means timeIn is before shiftStart (early/on-time)
+        if ($minutesDifference < -15) {
             return 'late';
         }
 
