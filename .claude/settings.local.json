@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer create-project:*)",
+      "Bash(dir)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(composer install:*)",
+      "Bash(php artisan:*)",
+      "Bash(npm install)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl http://127.0.0.1:8000/)",
+      "Bash(curl http://localhost:5173/resources/js/app.jsx)",
+      "Bash(dir:*)",
+      "Bash(curl -s http://127.0.0.1:8000/)",
+      "Bash(curl -s http://localhost:5173/@vite/client)",
+      "Bash(curl:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
