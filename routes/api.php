@@ -27,4 +27,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Employee management (admin only)
     Route::apiResource('employees', EmployeeController::class);
+
+    // Attendance routes
+    Route::get('/attendance/today', [App\Http\Controllers\Api\AttendanceController::class, 'today']);
+    Route::post('/attendance/time-in', [App\Http\Controllers\Api\AttendanceController::class, 'timeIn']);
+    Route::post('/attendance/time-out', [App\Http\Controllers\Api\AttendanceController::class, 'timeOut']);
+    Route::get('/attendance/history', [App\Http\Controllers\Api\AttendanceController::class, 'history']);
+    Route::get('/attendance', [App\Http\Controllers\Api\AttendanceController::class, 'index']);
 });

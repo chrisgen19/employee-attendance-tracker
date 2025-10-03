@@ -24,6 +24,8 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
+        'shift_start',
+        'shift_end',
     ];
 
     /**
@@ -59,5 +61,16 @@ class User extends Authenticatable
     public function isEmployee()
     {
         return $this->role === 'employee';
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function todayAttendance()
+    {
+        return $this->hasOne(Attendance::class)
+            ->whereDate('date', today());
     }
 }

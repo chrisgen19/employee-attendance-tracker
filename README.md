@@ -6,6 +6,19 @@ A web application for tracking employee attendance built with Laravel 8 and Reac
 
 - **Admin Registration**: Create an organization and admin account
 - **Employee Management**: Admins can add, view, activate/deactivate, and delete employees
+- **Time In/Out Tracking**: Real-time attendance tracking with clock in/out functionality
+- **My Shift Widget**: Interactive sidebar widget displaying:
+  - Real-time clock with timezone
+  - Current shift status (In Progress indicator)
+  - Clock in/out times
+  - Shift timebound information
+  - Early time out option
+- **Attendance Status Detection**:
+  - **Present**: Clocked in on time
+  - **Late**: Clocked in more than 15 minutes after shift start
+  - **Half Day**: Worked less than half of the shift hours
+  - **Absent**: No clock in record
+- **Shift Management**: Each user has customizable shift times (default: 8:00 AM - 5:00 PM)
 - **Organization-based**: Multi-tenant system where each organization has its own employees
 - **Authentication**: Secure JWT-based authentication using Laravel Sanctum
 - **Role-based Access**: Admin and Employee roles with different permissions
@@ -159,43 +172,79 @@ Employees will be automatically assigned to your organization.
 
 Employees can log in using the email and password created by the admin.
 
+### Time Tracking
+
+**For Employees:**
+
+1. Log in to your account
+2. You'll see the **My Shift** widget on the dashboard sidebar
+3. Click **Time In** button to start your shift
+   - The system will record your clock-in time
+   - Status will be automatically determined (Present/Late)
+   - "In Progress" badge will appear
+4. During your shift, you can:
+   - View current time and timezone
+   - See your clock-in time and status
+   - Use **Time Out Early** button if needed
+5. Click **Time Out** when your shift ends
+   - The system calculates if you completed your shift
+   - Status may update to Half Day if you left early
+
+**Attendance Status:**
+- **Present**: Clocked in within 15 minutes of shift start
+- **Late**: Clocked in more than 15 minutes after shift start
+- **Half Day**: Total work hours less than half of shift duration
+- **Absent**: No clock-in record for the day
+
 ## Project Structure
 
 ```
 employee-attendance-tracker/
 ├── app/
 │   ├── Http/Controllers/Api/
-│   │   ├── AuthController.php       # Authentication endpoints
-│   │   └── EmployeeController.php   # Employee management endpoints
+│   │   ├── AuthController.php           # Authentication endpoints
+│   │   ├── EmployeeController.php       # Employee management endpoints
+│   │   └── AttendanceController.php     # ✨ Attendance tracking endpoints
 │   └── Models/
-│       ├── User.php                  # User model
-│       └── Organization.php          # Organization model
-├── database/migrations/              # Database migrations
+│       ├── User.php                      # User model with shift times
+│       ├── Organization.php              # Organization model
+│       └── Attendance.php                # ✨ Attendance model with status logic
+├── database/migrations/
+│   ├── 2014_10_12_000000_create_users_table.php
+│   ├── 2025_10_02_062139_create_organizations_table.php
+│   ├── 2025_10_02_062313_add_organization_and_role_to_users_table.php
+│   ├── 2025_10_03_041834_add_shift_times_to_users_table.php      # ✨ User shift times
+│   └── 2025_10_03_041836_create_attendances_table.php            # ✨ Attendance records
 ├── resources/
 │   ├── js/
 │   │   ├── components/
-│   │   │   ├── Layout.jsx           # Shared layout component
-│   │   │   └── ProtectedRoute.jsx   # Route protection
+│   │   │   ├── Layout.jsx               # Shared layout component
+│   │   │   ├── ProtectedRoute.jsx       # Route protection
+│   │   │   └── MyShiftWidget.jsx        # ✨ Time in/out widget
 │   │   ├── context/
-│   │   │   └── AuthContext.jsx      # Authentication context
+│   │   │   └── AuthContext.jsx          # Authentication context
 │   │   ├── pages/
-│   │   │   ├── Login.jsx            # Login page
-│   │   │   ├── Register.jsx         # Registration page
-│   │   │   ├── Dashboard.jsx        # Dashboard page
-│   │   │   └── Employees.jsx        # Employee management page
+│   │   │   ├── Login.jsx                # Login page
+│   │   │   ├── Register.jsx             # Registration page
+│   │   │   ├── Dashboard.jsx            # Dashboard with shift widget
+│   │   │   └── Employees.jsx            # Employee management page
 │   │   ├── utils/
-│   │   │   └── api.js               # Axios configuration
-│   │   └── app.jsx                  # React app entry point
+│   │   │   └── api.js                   # Axios configuration
+│   │   └── app.jsx                      # React app entry point
 │   ├── css/
-│   │   └── app.css                  # Tailwind CSS
+│   │   └── app.css                      # Tailwind CSS
 │   └── views/
-│       └── app.blade.php            # Main HTML template
+│       └── app.blade.php                # Main HTML template
 ├── routes/
-│   ├── web.php                      # Web routes
-│   └── api.php                      # API routes
-├── vite.config.js                   # Vite configuration
-├── tailwind.config.js               # Tailwind configuration
-└── package.json                     # Node dependencies
+│   ├── web.php                          # Web routes
+│   └── api.php                          # API routes (with attendance endpoints)
+├── config/
+│   └── app.php                          # ✨ Timezone set to Asia/Manila
+├── vite.config.js                       # Vite configuration
+├── tailwind.config.js                   # Tailwind configuration
+└── package.json                         # Node dependencies
+
+✨ = New/Modified files for attendance tracking feature
 ```
 
 ## API Endpoints
@@ -207,12 +256,22 @@ employee-attendance-tracker/
 
 ### Protected Endpoints (require authentication)
 
+**Authentication:**
 - `POST /api/logout` - Logout current user
 - `GET /api/me` - Get current user details
-- `GET /api/employees` - List all employees (admin only)
-- `POST /api/employees` - Create new employee (admin only)
-- `PUT /api/employees/{id}` - Update employee (admin only)
-- `DELETE /api/employees/{id}` - Delete employee (admin only)
+
+**Employee Management (Admin only):**
+- `GET /api/employees` - List all employees
+- `POST /api/employees` - Create new employee
+- `PUT /api/employees/{id}` - Update employee
+- `DELETE /api/employees/{id}` - Delete employee
+
+**Attendance Tracking:**
+- `GET /api/attendance/today` - Get today's attendance for current user
+- `POST /api/attendance/time-in` - Clock in for the day
+- `POST /api/attendance/time-out` - Clock out
+- `GET /api/attendance/history` - Get attendance history for current user
+- `GET /api/attendance` - Get all attendances (admin only)
 
 ## Development
 
