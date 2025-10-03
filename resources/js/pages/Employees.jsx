@@ -6,6 +6,7 @@ const Employees = () => {
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [editingEmployee, setEditingEmployee] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -37,25 +38,53 @@ const Employees = () => {
         setErrors({ ...errors, [e.target.name]: '' });
     };
 
+    const handleEdit = (employee) => {
+        setEditingEmployee(employee);
+        setFormData({
+            name: employee.name,
+            email: employee.email,
+            password: '',
+        });
+        setShowModal(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         setErrors({});
 
         try {
-            await api.post('/employees', formData);
+            if (editingEmployee) {
+                // Update employee
+                const updateData = { ...formData };
+                if (!updateData.password) {
+                    delete updateData.password; // Don't send password if not changing
+                }
+                await api.put(`/employees/${editingEmployee.id}`, updateData);
+            } else {
+                // Create new employee
+                await api.post('/employees', formData);
+            }
             setShowModal(false);
             setFormData({ name: '', email: '', password: '' });
+            setEditingEmployee(null);
             fetchEmployees();
         } catch (error) {
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
             } else {
-                setErrors({ general: error.response?.data?.message || 'Failed to create employee' });
+                setErrors({ general: error.response?.data?.message || `Failed to ${editingEmployee ? 'update' : 'create'} employee` });
             }
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setEditingEmployee(null);
+        setFormData({ name: '', email: '', password: '' });
+        setErrors({});
     };
 
     const handleDelete = async (id) => {
@@ -140,6 +169,12 @@ const Employees = () => {
                                                 </td>
                                                 <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                                     <button
+                                                        onClick={() => handleEdit(employee)}
+                                                        className="text-indigo-600 hover:text-indigo-900 mr-4"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button
                                                         onClick={() => toggleActive(employee.id, employee.is_active)}
                                                         className="text-indigo-600 hover:text-indigo-900 mr-4"
                                                     >
@@ -162,15 +197,17 @@ const Employees = () => {
                 </div>
             </div>
 
-            {/* Add Employee Modal */}
+            {/* Add/Edit Employee Modal */}
             {showModal && (
                 <div className="fixed z-10 inset-0 overflow-y-auto">
                     <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowModal(false)}></div>
+                        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={handleCloseModal}></div>
 
                         <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                             <div>
-                                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Add New Employee</h3>
+                                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                    {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
+                                </h3>
                                 <form onSubmit={handleSubmit}>
                                     {errors.general && (
                                         <div className="mb-4 rounded-md bg-red-50 p-4">
@@ -207,15 +244,18 @@ const Employees = () => {
                                     </div>
 
                                     <div className="mb-4">
-                                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                            Password {editingEmployee && <span className="text-gray-500">(leave blank to keep current)</span>}
+                                        </label>
                                         <input
                                             type="password"
                                             name="password"
                                             id="password"
-                                            required
+                                            required={!editingEmployee}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
                                             value={formData.password}
                                             onChange={handleChange}
+                                            placeholder={editingEmployee ? "Leave blank to keep current password" : ""}
                                         />
                                         {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password[0]}</p>}
                                     </div>
@@ -226,11 +266,11 @@ const Employees = () => {
                                             disabled={submitting}
                                             className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm disabled:opacity-50"
                                         >
-                                            {submitting ? 'Creating...' : 'Create Employee'}
+                                            {submitting ? (editingEmployee ? 'Updating...' : 'Creating...') : (editingEmployee ? 'Update Employee' : 'Create Employee')}
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setShowModal(false)}
+                                            onClick={handleCloseModal}
                                             className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
                                         >
                                             Cancel
