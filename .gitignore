@@ -34,3 +34,9 @@ database/database.sqlite
 .project
 .settings
 .buildpath
+
+# Vite build artifacts
+.vite/
+
+# Temporary files
+nul
