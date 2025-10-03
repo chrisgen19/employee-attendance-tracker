@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import MyShiftWidget from '../components/MyShiftWidget';
 
 const Dashboard = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     return (
         <Layout>
@@ -42,7 +44,10 @@ const Dashboard = () => {
                             </h3>
                             <div className="grid grid-cols-3 gap-4">
                                 {/* Attendance */}
-                                <div className="text-center p-4 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                                <div
+                                    onClick={() => navigate('/attendance')}
+                                    className="text-center p-4 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                                >
                                     <div className="flex justify-center mb-2">
                                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                                             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

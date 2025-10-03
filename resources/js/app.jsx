@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
+import Attendance from './pages/Attendance';
 import '../css/app.css';
 
 function App() {
@@ -29,6 +30,14 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Employees />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/attendance"
+                        element={
+                            <ProtectedRoute>
+                                <Attendance />
                             </ProtectedRoute>
                         }
                     />
