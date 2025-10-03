@@ -35,6 +35,8 @@ class EmployeeController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'shift_start' => 'sometimes|date_format:H:i',
+            'shift_end' => 'sometimes|date_format:H:i',
         ]);
 
         if ($validator->fails()) {
@@ -49,6 +51,8 @@ class EmployeeController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'employee',
             'is_active' => true,
+            'shift_start' => $request->shift_start ?? '08:00:00',
+            'shift_end' => $request->shift_end ?? '17:00:00',
         ]);
 
         return response()->json([
@@ -73,18 +77,26 @@ class EmployeeController extends Controller
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'sometimes|required|string|min:8',
             'is_active' => 'sometimes|boolean',
+            'shift_start' => 'sometimes|date_format:H:i',
+            'shift_end' => 'sometimes|date_format:H:i',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $employee->update(array_filter([
+        $updateData = array_filter([
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password ? Hash::make($request->password) : null,
             'is_active' => $request->has('is_active') ? $request->is_active : $employee->is_active,
-        ]));
+            'shift_start' => $request->shift_start,
+            'shift_end' => $request->shift_end,
+        ], function($value) {
+            return $value !== null;
+        });
+
+        $employee->update($updateData);
 
         return response()->json([
             'message' => 'Employee updated successfully',

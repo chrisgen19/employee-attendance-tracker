@@ -11,6 +11,8 @@ const Employees = () => {
         name: '',
         email: '',
         password: '',
+        shift_start: '08:00',
+        shift_end: '17:00',
     });
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
@@ -44,6 +46,8 @@ const Employees = () => {
             name: employee.name,
             email: employee.email,
             password: '',
+            shift_start: employee.shift_start ? employee.shift_start.substring(0, 5) : '08:00',
+            shift_end: employee.shift_end ? employee.shift_end.substring(0, 5) : '17:00',
         });
         setShowModal(true);
     };
@@ -66,7 +70,7 @@ const Employees = () => {
                 await api.post('/employees', formData);
             }
             setShowModal(false);
-            setFormData({ name: '', email: '', password: '' });
+            setFormData({ name: '', email: '', password: '', shift_start: '08:00', shift_end: '17:00' });
             setEditingEmployee(null);
             fetchEmployees();
         } catch (error) {
@@ -83,7 +87,7 @@ const Employees = () => {
     const handleCloseModal = () => {
         setShowModal(false);
         setEditingEmployee(null);
-        setFormData({ name: '', email: '', password: '' });
+        setFormData({ name: '', email: '', password: '', shift_start: '08:00', shift_end: '17:00' });
         setErrors({});
     };
 
@@ -258,6 +262,37 @@ const Employees = () => {
                                             placeholder={editingEmployee ? "Leave blank to keep current password" : ""}
                                         />
                                         {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password[0]}</p>}
+                                    </div>
+
+                                    <div className="mb-4 grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label htmlFor="shift_start" className="block text-sm font-medium text-gray-700">
+                                                Shift Start Time
+                                            </label>
+                                            <input
+                                                type="time"
+                                                name="shift_start"
+                                                id="shift_start"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                                                value={formData.shift_start}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.shift_start && <p className="text-red-500 text-xs mt-1">{errors.shift_start[0]}</p>}
+                                        </div>
+                                        <div>
+                                            <label htmlFor="shift_end" className="block text-sm font-medium text-gray-700">
+                                                Shift End Time
+                                            </label>
+                                            <input
+                                                type="time"
+                                                name="shift_end"
+                                                id="shift_end"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                                                value={formData.shift_end}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.shift_end && <p className="text-red-500 text-xs mt-1">{errors.shift_end[0]}</p>}
+                                        </div>
                                     </div>
 
                                     <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
